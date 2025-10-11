@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <initializer_list>
 #include <utility>
 
@@ -67,7 +68,7 @@ public:
     }
     T Length() const noexcept { return sqrtf(LengthSQ()); }
 
-    Vector<AxesAmount, T> Normalize() const noexcept {
+    constexpr Vector<AxesAmount, T> Normalize() const noexcept {
         return (*this) / Length();
     }
     // dot product with full length, means that it wasnt divided by length of
@@ -82,7 +83,7 @@ public:
     }
 
     // first value is dist from p1, and second one is from p2
-    static Vector<2, T> GetDistsToShortestDistBetweenVecs(
+    constexpr static Vector<2, T> GetDistsToShortestDistBetweenVecs(
         const Vector<AxesAmount, T> &p1, const Vector<AxesAmount, T> &v1,
         const Vector<AxesAmount, T> &p2,
         const Vector<AxesAmount, T> &v2) noexcept {
@@ -103,7 +104,7 @@ public:
         return Vector<2, T>((b * f - e * c) / (a * e - d * b),
                             (d * c - f * a) / (a * e - d * b));
     };
-    static T GetShortestDistBetweenVecs(
+    constexpr static T GetShortestDistBetweenVecs(
         const Vector<AxesAmount, T> &p1, const Vector<AxesAmount, T> &v1,
         const Vector<AxesAmount, T> &p2,
         const Vector<AxesAmount, T> &v2) noexcept {
@@ -126,9 +127,17 @@ public:
             Axes[2] * vec.Axes[0] - Axes[0] * vec.Axes[2],
             Axes[0] * vec.Axes[1] - Axes[1] * vec.Axes[0]);
     }
-    Vector<AxesAmount, T> Cross(
+    constexpr Vector<AxesAmount, T> Cross(
         const Vector<AxesAmount, T> &vec) const noexcept {
         return CrossFL(vec) / Length() / vec.Length();
+    }
+
+    constexpr Vector<AxesAmount, T> Clamp(const Vector<AxesAmount, T> &low,
+                                          const Vector<AxesAmount, T> &high) {
+        Vector<AxesAmount, T> retVec;
+        for (size_t i = 0; i < AxesAmount; i++)
+            retVec.Axes[i] = std::clamp(Axes[i], low[i], high[i]);
+        return retVec;
     }
 
     constexpr Vector<AxesAmount, T> operator+(const T &num) const noexcept {
